@@ -75,6 +75,7 @@ fn format_print() {
     //println!("This struct `{}` won't print...", Structure(3));
 }
 
+#[allow(dead_code, unused_variables)]
 fn debug_format_print() {
     // `Structure` is a structure which contains an `i32`.
     #[derive(Debug)]
