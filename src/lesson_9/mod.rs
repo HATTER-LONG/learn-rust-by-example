@@ -6,6 +6,10 @@ pub fn lesson_9_main() {
     method_example();
     lambda_example();
     capture_example();
+    closure_as_input_parameter();
+    call_function_with_closure();
+    iterator_any_example();
+    higher_order_function();
     info!("Lesson 9: end");
 }
 
@@ -161,4 +165,82 @@ fn capture_example() {
     consume();
     //consume();
     //println!("`movable`: {:?}", movable);
+}
+
+fn closure_as_input_parameter() {
+    fn apply<F>(f: F)
+    where
+        F: FnOnce(),
+    {
+        f();
+    }
+
+    let x = 7;
+    let print = || println!("{}", x);
+    apply(print);
+
+    fn apply_to_3<F>(f: F) -> i32
+    where
+        F: FnOnce(i32) -> i32,
+    {
+        f(3)
+    }
+    let mut data = "hello".to_owned();
+    let double = |x| {
+        data.push_str("world");
+        println!("data: {}", data);
+        std::mem::drop(data);
+        x * 2
+    };
+    println!("3 doubled: {}", apply_to_3(double));
+}
+
+fn call_function_with_closure() {
+    fn call_me<F: Fn()>(f: F) {
+        f();
+    }
+
+    fn function() {
+        println!("I'm a function!");
+    }
+
+    call_me(function);
+}
+
+fn iterator_any_example() {
+    let vec1 = vec![1, 2, 3];
+    let vec2 = vec![4, 5, 6];
+
+    println!("2 in vec1: {}", vec1.iter().any(|&x| x == 2));
+    println!("2 in vec2: {}", vec2.into_iter().any(|x| x == 2));
+
+    let vec2 = vec![4, 5, 6];
+    let mut iter = vec1.iter();
+    let mut into_iter = vec2.into_iter();
+
+    println!("Find 2 in vec1: {:?}", iter.find(|&&x| x == 2));
+    println!("Find 2 in vec2: {:?}", into_iter.find(|&x| x == 2));
+}
+
+fn higher_order_function() {
+    let upper = 1000;
+
+    let mut acc = 0;
+    for n in 0.. {
+        let n_squared = n * n;
+
+        if n_squared >= upper {
+            break;
+        } else if n_squared % 2 == 1 {
+            acc += n_squared;
+        }
+    }
+    println!("implemented: {}", acc);
+
+    let sum_of_squared_odd_numbers: u32 = (0..)
+        .map(|n| n * n)
+        .take_while(|&n_squared| n_squared < upper)
+        .filter(|&n_squared| n_squared % 2 == 1)
+        .fold(0, |acc, n_squared| acc + n_squared);
+    println!("functional: {}", sum_of_squared_odd_numbers);
 }
