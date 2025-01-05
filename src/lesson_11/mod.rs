@@ -4,6 +4,10 @@ pub fn lesson_11_main() {
     info!("Lesson 11: start");
     template_example();
     template_impl_example();
+    template_trait_example();
+    bound_example();
+    multi_bound_example();
+    where_bound_example();
     info!("Lesson 11: end");
 }
 
@@ -38,4 +42,173 @@ fn template_impl_example() {
     struct Val {
         val: f64,
     }
+
+    struct GenVal<T> {
+        gen_val: T,
+    }
+
+    impl Val {
+        fn value(&self) -> &f64 {
+            &self.val
+        }
+    }
+
+    impl<T> GenVal<T> {
+        fn value(&self) -> &T {
+            &self.gen_val
+        }
+    }
+
+    let x = Val { val: 3.0 };
+    let y = GenVal { gen_val: 3i32 };
+
+    println!("{}, {}", x.value(), y.value());
+}
+
+fn template_trait_example() {
+    struct Empty;
+    struct Null;
+
+    trait DoubleDrop<T> {
+        fn double_drop(self, _: T);
+    }
+
+    impl<T, U> DoubleDrop<T> for U {
+        fn double_drop(self, _: T) {}
+    }
+
+    let empty = Empty;
+    let null = Null;
+
+    empty.double_drop(null);
+}
+
+#[allow(dead_code)]
+fn bound_example() {
+    use std::fmt::Display;
+    fn printer<T: Display>(t: T) {
+        println!("{}", t);
+    }
+
+    struct S<T: Display>(T);
+
+    // let s = S(vec![1]);
+
+    trait HasArea {
+        fn area(&self) -> f64;
+    }
+    #[derive(Debug)]
+    struct Rectangle {
+        length: f64,
+        height: f64,
+    }
+
+    struct Triangle {
+        length: f64,
+        height: f64,
+    }
+
+    impl HasArea for Rectangle {
+        fn area(&self) -> f64 {
+            self.length * self.height
+        }
+    }
+
+    // impl HasArea for Triangle {
+    //     fn area(&self) -> f64 {
+    //         self.length * self.height / 2.0
+    //     }
+    // }
+
+    fn print_area<T: HasArea>(t: &T) {
+        println!("This shape has an area of {}", t.area());
+    }
+
+    use std::fmt::Debug;
+    fn print_debug<T: Debug>(t: &T) {
+        println!("{:?}", t);
+    }
+
+    {
+        let rectangle = Rectangle {
+            length: 3.0,
+            height: 4.0,
+        };
+        let _triangle = Triangle {
+            length: 3.0,
+            height: 4.0,
+        };
+
+        print_area(&rectangle);
+        // print_area(_triangle);
+        print_debug(&rectangle);
+        //print_debug(_triangle);
+    }
+
+    struct Cardinal;
+    struct BlueJay;
+    struct Turkey;
+
+    trait Red {}
+    trait Blue {}
+
+    impl Red for Cardinal {}
+    impl Blue for BlueJay {}
+
+    fn red<T: Red>(_: &T) -> &'static str {
+        "red"
+    }
+
+    fn blue<T: Blue>(_: &T) -> &'static str {
+        "blue"
+    }
+
+    let cardinal = Cardinal;
+    let blue_jay = BlueJay;
+    let _turkey = Turkey;
+    println!("{}", red(&cardinal));
+    println!("{}", blue(&blue_jay));
+    // println!("{}", red(&_turkey));
+}
+
+fn multi_bound_example() {
+    use std::fmt::{Debug, Display};
+
+    fn compare_prints<T: Debug + Display>(t: &T) {
+        println!("Debug: `{:?}`", t);
+        println!("Display: `{}`", t);
+    }
+
+    fn compare_types<T: Debug, U: Debug>(t: &T, u: &U) {
+        println!("t: `{:?}`", t);
+        println!("u: `{:?}`", u);
+    }
+
+    let string = "words";
+    let array = [1, 2, 3];
+    let vec = vec![1, 2, 3];
+
+    compare_prints(&string);
+    //compare_prints(&array);
+    compare_types(&array, &vec);
+}
+
+fn where_bound_example() {
+    use std::fmt::Debug;
+
+    trait PrintInOption {
+        fn print_in_option(self);
+    }
+
+    impl<T> PrintInOption for T
+    where
+        Option<T>: Debug,
+    {
+        fn print_in_option(self) {
+            println!("{:?}", Some(self));
+        }
+    }
+
+    let vec = vec![1, 2, 3];
+    vec.print_in_option();
 }
