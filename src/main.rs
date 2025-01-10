@@ -2,6 +2,7 @@ mod lesson_1;
 mod lesson_10;
 mod lesson_11;
 mod lesson_12;
+mod lesson_13;
 mod lesson_2;
 mod lesson_3;
 mod lesson_4;
@@ -16,6 +17,7 @@ use lesson_1::lesson_1_main;
 use lesson_10::lesson_10_main;
 use lesson_11::lesson_11_main;
 use lesson_12::lesson_12_main;
+use lesson_13::lesson_13_main;
 use lesson_2::lesson_2_main;
 use lesson_3::lesson_3_main;
 use lesson_4::lesson_4_main;
@@ -41,4 +43,5 @@ fn main() {
     lesson_10_main();
     lesson_11_main();
     lesson_12_main();
+    lesson_13_main();
 }
