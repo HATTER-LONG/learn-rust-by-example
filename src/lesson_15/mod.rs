@@ -1,9 +1,12 @@
+use std::{fmt::Result, num::ParseIntError};
+
 use log::info;
 
 pub fn lesson_15_main() {
     info!("Lesson 15: start");
     option_example();
     result_example();
+    multi_result_example();
     info!("Lesson 15: end");
 }
 
@@ -222,5 +225,68 @@ fn result_example() {
 
         print(multiply_v1("10", "2"));
         print(multiply_v1("t", "2"));
+    }
+    {
+        type AliasedResult<T> = Result<T, ParseIntError>;
+        fn multiply(first_number_str: &str, second_number_str: &str) -> AliasedResult<i32> {
+            first_number_str.parse::<i32>().and_then(|first_number| {
+                second_number_str
+                    .parse::<i32>()
+                    .map(|second_number| first_number * second_number)
+            })
+        }
+
+        fn print(result: AliasedResult<i32>) {
+            match result {
+                Ok(n) => println!("n is {}", n),
+                Err(e) => println!("Error: {:?}", e),
+            }
+        }
+
+        print(multiply("10", "2"));
+        print(multiply("t", "2"));
+    }
+    {
+        fn multiply(first_number_str: &str, second_number_str: &str) -> Result<i32, ParseIntError> {
+            let first_num = match first_number_str.parse::<i32>() {
+                Ok(first_num) => first_num,
+                Err(e) => return Err(e),
+            };
+
+            let second_num = match second_number_str.parse::<i32>() {
+                Ok(second_num) => second_num,
+                Err(e) => return Err(e),
+            };
+
+            Ok(first_num * second_num)
+        }
+
+        fn print(result: Result<i32, ParseIntError>) {
+            match result {
+                Ok(n) => println!("n is {}", n),
+                Err(e) => println!("Error: {:?}", e),
+            }
+        }
+
+        print(multiply("10", "2"));
+        print(multiply("t", "2"));
+    }
+}
+
+fn multi_result_example() {
+    {
+        fn double_first(vec: Vec<&str>) -> i32 {
+            let first = vec.first().unwrap();
+            2 * first.parse::<i32>().unwrap()
+        }
+
+        let numbers = vec!["42", "93", "18"];
+        println!("The first doubled is {}", double_first(numbers));
+
+        //let empty = vec![];
+        //println!("The first doubled is {}", double_first(empty));
+
+        //let strings = vec!["tofu", "93", "18"];
+        //println!("The first doubled is {}", double_first(strings));
     }
 }
